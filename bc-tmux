@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
+function fix_zsh_prompt() {
+  # scripted panes don't get nicer zsh prompt,
+  # change into the current directory to fix
+  # the path presentation and not have full path
+  tmux send-keys 'cd .' 'Enter' 'C-l'
+  exit 0
+}
+
 function setup_session() {
   session=$1
 
@@ -10,14 +18,11 @@ function setup_session() {
   # create a new session named after the project
   # name the first pane 'editor' and stay detached
   tmux new-session -s "$session" -n editor -d
-
-  # change into the current directory to fix
-  # the zsh path presentation and not have full path
-  tmux send-keys 'cd .' 'Enter' 'C-l'
+  fix_zsh_prompt
 
   # split to 77 percent and open vim
   tmux split-window -h -p 77
-  tmux send-keys 'cd .' 'Enter' 'C-l'
+  fix_zsh_prompt
 
   # vim is opened in a separate command so that
   # when closed the pane stays
@@ -25,7 +30,7 @@ function setup_session() {
 
   # add a new window called server
   tmux new-window -t $session:1 -n server
-  tmux send-keys 'cd .' 'Enter' 'C-l'
+  fix_zsh_prompt
 
   # start the rails console in this window
   if [ -d "script" ]; then
@@ -36,7 +41,7 @@ function setup_session() {
 
   # start tailing the development log in a second pane
   tmux split-window -h -p 50
-  tmux send-keys 'cd .' 'Enter' 'C-l'
+  fix_zsh_prompt
   tmux send-keys 'tail -f log/development.log' 'Enter'
 
   # make our first window the active window
