@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -e
+
+function setup_session() {
+  session=$1
+
+  # cd into project directory
+  cd "/$HOME/bigcartel/$session"
+
+  # create a new session named after the project
+  # name the first pane 'editor' and stay detached
+  tmux new-session -s "$session" -n editor -d
+
+  # change into the current directory to fix
+  # the zsh path presentation and not have full path
+  tmux send-keys 'cd .' 'Enter' 'C-l'
+
+  # split to 77 percent and open vim
+  tmux split-window -h -p 77
+  tmux send-keys 'cd .' 'Enter' 'C-l'
+
+  # vim is opened in a separate command so that
+  # when closed the pane stays
+  tmux send-keys 'vim .' 'Enter'
+
+  # add a new window called server
+  tmux new-window -t $session:1 -n server
+  tmux send-keys 'cd .' 'Enter' 'C-l'
+
+  # start the rails console in this window
+  if [ -d "script" ]; then
+    tmux send-keys 'script/console' 'Enter' 'C-l'
+  else
+    tmux send-keys 'rails c' 'Enter' 'C-l'
+  fi
+
+  # start tailing the development log in a second pane
+  tmux split-window -h -p 50
+  tmux send-keys 'cd .' 'Enter' 'C-l'
+  tmux send-keys 'tail -f log/development.log' 'Enter'
+
+  # make our first window the active window
+  tmux select-window -t $session:0
+}
+
+sessions="api bigcartel checkout hub"
+
+# avoid tmux failed to connect messages with a temporary session
+tmux new-session -ds temporary-session
+
+for session in $sessions; do
+  if [ `tmux ls | grep $session | wc -l` -eq 0 ]; then
+    echo "Setting up session $session."
+    setup_session $session
+  else
+    echo "Session $session already exists. Skipping."
+  fi
+done
+
+# clean up temporary session
+tmux kill-session -t temporary-session
+
+echo "Done!"
