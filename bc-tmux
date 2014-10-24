@@ -47,7 +47,7 @@ function setup_session() {
   tmux select-window -t $session:0
 }
 
-sessions="api bigcartel checkout hub"
+sessions="admin bigcartel checkout hub"
 
 # avoid tmux failed to connect messages with a temporary session
 tmux new-session -ds temporary-session
