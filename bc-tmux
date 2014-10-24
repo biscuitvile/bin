@@ -6,7 +6,6 @@ function fix_zsh_prompt() {
   # change into the current directory to fix
   # the path presentation and not have full path
   tmux send-keys 'cd .' 'Enter' 'C-l'
-  exit 0
 }
 
 function setup_session() {
