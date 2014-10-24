@@ -12,7 +12,7 @@ function setup_session() {
   session=$1
 
   # cd into project directory
-  cd "/$HOME/bigcartel/$session"
+  cd "$HOME/bigcartel/$session"
 
   # create a new session named after the project
   # name the first pane 'editor' and stay detached
