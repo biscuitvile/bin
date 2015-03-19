@@ -23,9 +23,25 @@ function setup_session() {
   tmux split-window -h -p 77
   fix_zsh_prompt
 
-  # vim is opened in a separate command so that
-  # when closed the pane stays
-  tmux send-keys 'vim .' 'Enter'
+  # create a vim sessions directory if
+  # one does not already exist
+
+  if [ ! -d "$HOME/.vim/sessions" ]; then
+    mkdir "$HOME/.vim/sessions"
+  fi
+
+  # if a vim session for project already exists
+  # open vim from the session, otherwise open
+  # vim in project directory and write session
+
+  vim_session="$HOME/.vim/sessions/$session.vim"
+
+  if [ -f "$vim_session" ]; then
+    tmux send-keys 'vim -S ' $vim_session 'Enter'
+  else
+    tmux send-keys 'vim .' 'Enter'
+    tmux send-keys ':mksession ' $vim_session 'Enter'
+  fi
 
   # add a new window called server
   tmux new-window -t $session:1 -n server
