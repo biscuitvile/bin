@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -e
+
+session=$1
+
+function fix_zsh_prompt() {
+  # scripted panes don't get nicer zsh prompt,
+  # change into the current directory to fix
+  # the path presentation and not have full path
+  tmux send-keys 'cd .' 'Enter' 'C-l'
+}
+
+# cd into project directory
+cd "$HOME/bigcartel/$session"
+
+# create a new session named after the project
+# name the first pane 'editor' and stay detached
+tmux new-session -s "$session" -n editor -d
+fix_zsh_prompt
+
+# split to 77 percent and open vim
+tmux split-window -h -p 77
+fix_zsh_prompt
+
+# create a vim sessions directory if
+# one does not already exist
+
+if [ ! -d "$HOME/.vim/sessions" ]; then
+mkdir "$HOME/.vim/sessions"
+fi
+
+# if a vim session for project already exists
+# open vim from the session, otherwise open
+# vim in project directory and write session
+
+vim_session="$HOME/.vim/sessions/$session.vim"
+
+if [ -f "$vim_session" ]; then
+tmux send-keys 'vim -S ' $vim_session 'Enter'
+else
+tmux send-keys 'vim .' 'Enter'
+tmux send-keys ':mksession ' $vim_session 'Enter'
+fi
+
+# add a new window called server
+tmux new-window -t $session:1 -n server
+fix_zsh_prompt
+
+# start the rails console in this window
+if [ -d "script" ]; then
+tmux send-keys 'script/console' 'Enter' 'C-l'
+else
+tmux send-keys 'rails c' 'Enter' 'C-l'
+fi
+
+# start tailing the development log in a second pane
+tmux split-window -h -p 50
+fix_zsh_prompt
+tmux send-keys 'tail -f log/development.log' 'Enter'
+
+# make our first window the active window
+tmux select-window -t $session:0
