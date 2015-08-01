@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-sessions="admin bigcartel checkout hub"
+sessions="admin admin-frontend bigcartel checkout hub"
 
 # avoid tmux failed to connect messages with a temporary session
 tmux new-session -ds temporary-session

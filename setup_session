@@ -46,17 +46,26 @@ fi
 tmux new-window -t $session:1 -n server
 fix_zsh_prompt
 
-# start the rails console in this window
-if [ -d "script" ]; then
-tmux send-keys 'script/console' 'Enter' 'C-l'
-else
-tmux send-keys 'rails c' 'Enter' 'C-l'
-fi
 
-# start tailing the development log in a second pane
-tmux split-window -h -p 50
-fix_zsh_prompt
-tmux send-keys 'tail -f log/development.log' 'Enter'
+# start the test and development server if an ember app
+if [ -d "bower_components" ]; then
+  tmux send-keys 'ember test --server --launch="Google Chrome"' 'Enter' 'C-l'
+  tmux split-window -h -p 50
+  fix_zsh_prompt
+  tmux send-keys 'ember server' 'Enter' 'C-l'
+else
+  # otherwise start the rails console and tail the app log
+  if [ -d "script" ]; then
+  tmux send-keys 'script/console' 'Enter' 'C-l'
+  else
+  tmux send-keys 'rails c' 'Enter' 'C-l'
+  fi
+
+  # start tailing the development log in a second pane
+  tmux split-window -h -p 50
+  fix_zsh_prompt
+  tmux send-keys 'tail -f log/development.log' 'Enter'
+fi
 
 # make our first window the active window
 tmux select-window -t $session:0
