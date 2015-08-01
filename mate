@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+
+session=$1
+
+if [ `tmux ls | grep $session | wc -l` -eq 0 ]; then
+  echo "No tmux session named $session exists."
+  exit 0
+fi
+
+# remove any existing session
+if [ -a "/tmp/tmate.sock" ]; then
+  rm /tmp/tmate.sock
+fi
+
+# create new session and wait for readiness
+tmate -S /tmp/tmate.sock new-session -d
+tmate -S /tmp/tmate.sock wait tmate-ready
+
+# attatch to specified tmux session
+tmate -S /tmp/tmate.sock send-keys 'TMUX="" tmux att -t ' $session 'Enter'
+
+# kill garbage output tmate reads from tmux.conf
+tmate -S /tmp/tmate.sock send-keys 'C-l' 'Enter' && sleep 0.5
+
+# copy ssh command to clipboard and attach
+tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}' | pbcopy
+tmate -S /tmp/tmate.sock attach
