@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+tmux send-keys C-z d
+
+echo $@

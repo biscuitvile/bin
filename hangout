@@ -2,8 +2,11 @@
 set -e
 
 pair=$1
+session=$(tmux display-message -p "#S")
 
 first=$(echo $USER$'\n'$pair | sort | tr '\n' ' ' | awk '{print $1;}')
 last=$(echo $USER$'\n'$pair | sort | tr '\n' ' ' | awk '{print $2;}')
 
 open https://plus.google.com/hangouts/_/bigcartel.com/$first-$last
+
+pairup $session
