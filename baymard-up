@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -e
+
+function fix_zsh_prompt() {
+  # scripted panes don't get nicer zsh prompt,
+  # change into the current directory to fix
+  # the path presentation and not have full path
+  tmux send-keys 'cd .' 'Enter' 'C-l'
+}
+
+cd "$HOME/baymard/baymard-public"
+
+# create a new session named after the project
+# name the first pane 'editor' and stay detached
+# set the window size to the terminal size
+tmux new-session -s "baymard" -n editor -d -x "$(tput cols)" -y "$(tput lines)"
+fix_zsh_prompt
+
+# split and open vim
+tmux split-window -t "baymard" -h
+fix_zsh_prompt
+
+# create a vim sessions directory if
+# one does not already exist
+
+if [ ! -d "$HOME/.vim/sessions" ]; then
+mkdir "$HOME/.vim/sessions"
+fi
+
+# if a vim session for project already exists
+# open vim from the session, otherwise open
+# vim in project directory and write session
+
+vim_session="$HOME/.vim/sessions/baymard-public.vim"
+
+if [ -f "$vim_session" ]; then
+tmux send-keys 'vim -S ' $vim_session 'Enter'
+else
+tmux send-keys 'vim .' 'Enter'
+tmux send-keys ':mksession ' $vim_session 'Enter'
+fi
+
+# add a new window called server
+tmux new-window -t baymard:1 -n server
+fix_zsh_prompt
+
+# start the rails console and run the server
+tmux send-keys 'make console' 'Enter' 'C-l'
+
+tmux split-window -h
+fix_zsh_prompt
+tmux send-keys 'make server' 'Enter'
+
+tmux split-window -v
+fix_zsh_prompt
+tmux send-keys 'make redis' 'Enter'
+
+tmux select-pane -t 0
+
+tmux split-window -v
+fix_zsh_prompt
+tmux send-keys 'make ngrok' 'Enter'
+
+# make our first window the active window
+tmux select-window -t baymard:0
+
+cd "$HOME/baymard/marketing-site"
+
+tmux new-session -s "nextjs" -n next -d -x "$(tput cols)" -y "$(tput lines)"
+fix_zsh_prompt
+
+tmux split-window -t "nextjs" -h
+fix_zsh_prompt
+
+nextjs_vim_session="$HOME/.vim/sessions/marketing-site.vim"
+
+if [ -f "$nextjs_vim_session" ]; then
+tmux send-keys 'vim -S ' $nextjs_vim_session 'Enter'
+else
+tmux send-keys 'vim .' 'Enter'
+tmux send-keys ':mksession ' $nextjs_vim_session 'Enter'
+fi
+
+tmux select-pane -t 0
+tmux send-keys 'pnpm dev' 'Enter'
+
+tmux att -t "baymard"

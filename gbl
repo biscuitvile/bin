@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+# This script has a long lineage of authors and users. It's not mine and you
+# should ask me about it sometime. This most recent form uses bundler/inline
+# and the tty-prompt gem to provide a nice interface for selecting a branch.
+
+require 'bundler/inline'
+
+begin
+  gemfile do
+    source 'https://rubygems.org'
+    gem 'tty-prompt', '~> 0.23.1', require: false
+  end
+rescue => e
+  puts "failed to install gems: #{e}"
+  raise e
+end
+
+require "tty-prompt"
+count = ARGV[0] || 30
+branches = `git branch -v --sort=-committerdate`
+branches = branches.split("\n").map(&:strip).delete_if { |b| b.start_with?("* ") }
+prompt = TTY::Prompt.new(interrupt: :exit)
+branch = prompt.select("Select branch to switch to:", branches).split(" ").first
+`git checkout #{branch}`
