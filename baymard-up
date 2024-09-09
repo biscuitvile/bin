@@ -18,6 +18,7 @@ fix_zsh_prompt
 
 # split and open vim
 tmux split-window -t "baymard" -h
+tmux resize-pane -L 90
 fix_zsh_prompt
 
 # create a vim sessions directory if
@@ -70,6 +71,7 @@ tmux new-session -s "nextjs" -n next -d -x "$(tput cols)" -y "$(tput lines)"
 fix_zsh_prompt
 
 tmux split-window -t "nextjs" -h
+tmux resize-pane -L 90
 fix_zsh_prompt
 
 nextjs_vim_session="$HOME/.vim/sessions/marketing-site.vim"
