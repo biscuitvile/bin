@@ -13,11 +13,11 @@ cd "$HOME/baymard/baymard-public"
 # create a new session named after the project
 # name the first pane 'editor' and stay detached
 # set the window size to the terminal size
-tmux new-session -s "baymard" -n editor -d -x "$(tput cols)" -y "$(tput lines)"
+tmux new-session -s "backend" -n editor -d -x "$(tput cols)" -y "$(tput lines)"
 fix_zsh_prompt
 
 # split and open vim
-tmux split-window -t "baymard" -h
+tmux split-window -t "backend" -h
 tmux resize-pane -L 90
 fix_zsh_prompt
 
@@ -42,35 +42,31 @@ tmux send-keys ':mksession ' $vim_session 'Enter'
 fi
 
 # add a new window called server
-tmux new-window -t baymard:1 -n server
+tmux new-window -t backend:1 -n server
 fix_zsh_prompt
 
 # start the rails console and run the server
-tmux send-keys 'make console' 'Enter' 'C-l'
+tmux send-keys 'just console' 'Enter' 'C-l'
 
 tmux split-window -h
 fix_zsh_prompt
-tmux send-keys 'make server' 'Enter'
-
-tmux split-window -v
-fix_zsh_prompt
-tmux send-keys 'make redis' 'Enter'
+tmux send-keys 'just server' 'Enter'
 
 tmux select-pane -t 0
 
 tmux split-window -v
 fix_zsh_prompt
-tmux send-keys 'make ngrok' 'Enter'
+tmux send-keys 'just ngrok' 'Enter'
 
 # make our first window the active window
-tmux select-window -t baymard:0
+tmux select-window -t backend:0
 
 cd "$HOME/baymard/marketing-site"
 
-tmux new-session -s "nextjs" -n next -d -x "$(tput cols)" -y "$(tput lines)"
+tmux new-session -s "frontend" -n next -d -x "$(tput cols)" -y "$(tput lines)"
 fix_zsh_prompt
 
-tmux split-window -t "nextjs" -h
+tmux split-window -t "frontend" -h
 tmux resize-pane -L 90
 fix_zsh_prompt
 
@@ -86,4 +82,4 @@ fi
 tmux select-pane -t 0
 tmux send-keys 'pnpm dev' 'Enter'
 
-tmux att -t "baymard"
+tmux att -t "backend"
